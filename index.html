@@ -862,7 +862,15 @@ async function loadAllData() {
     ]);
     
     // تنظيف البيانات الرئيسية (تخطي صف العنوان الأول)
-    const mainClean = main.filter(r => r['اسم الجمعية'] && r['اسم الجمعية'] !== 'اسم الجمعية');
+    // إصلاح: اسم العمود الأول في الشيت يحتوي على عنوان طويل
+    // نعيد تسمية العمود الأول إلى 'اسم الجمعية'
+    const ASSOC_COL = Object.keys(main[0] || {}).find(k => k.includes('اسم الجمعية')) || 'اسم الجمعية';
+    const mainClean = main.map(r => {
+      if (ASSOC_COL !== 'اسم الجمعية') {
+        r['اسم الجمعية'] = r[ASSOC_COL];
+      }
+      return r;
+    }).filter(r => r['اسم الجمعية'] && r['رقم الطلب']);
     
     DATA = { main: mainClean, items, statusSummary, regions, grants, supervisors, vision, topItems };
     
