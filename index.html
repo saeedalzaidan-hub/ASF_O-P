@@ -815,27 +815,24 @@ const COLORS = {
 };
 
 // ===== UTILS =====
-// تحويل الأرقام إلى عربية
-function toArabicNums(str) {
-  return String(str).replace(/[0-9]/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
-}
+
 function fmt(n) {
-  if (n === undefined || n === null || isNaN(n)) return '٠';
-  if (n >= 1000000000) return toArabicNums((n/1000000000).toFixed(1)) + ' مليار';
-  if (n >= 1000000) return toArabicNums((n/1000000).toFixed(1)) + ' مليون';
-  if (n >= 1000) return toArabicNums((n/1000).toFixed(0)) + ' ألف';
-  return toArabicNums(n.toLocaleString('ar-SA'));
+  if (n === undefined || n === null || isNaN(n)) return '0';
+  if (n >= 1000000000) return (n/1000000000).toFixed(1) + ' مليار';
+  if (n >= 1000000) return (n/1000000).toFixed(1) + ' مليون';
+  if (n >= 1000) return (n/1000).toFixed(0) + ' ألف';
+  return n.toLocaleString('en-US');
 }
 function fmtFull(n) {
-  if (!n) return '٠';
-  return toArabicNums(Number(n).toLocaleString('ar-SA'));
+  if (!n) return '0';
+  return Number(n).toLocaleString('en-US');
 }
 function pct(a, b) {
   if (!b) return 0;
   return Math.round((a/b)*100);
 }
 function pctAr(a, b) {
-  return toArabicNums(pct(a, b));
+  return pct(a, b);
 }
 function getStatusBadge(status) {
   const map = {
@@ -900,7 +897,7 @@ async function loadAllData() {
     DATA = { main: mainClean, items, statusSummary, regions, grants, supervisors, vision, topItems: topItemsClean };
     
     document.getElementById('updateTime').textContent = 
-      '⟳ آخر تحديث: ' + new Date().toLocaleString('ar-SA', {hour:'2-digit',minute:'2-digit'});
+      '⟳ آخر تحديث: ' + new Date().toLocaleString('en-US', {hour:'2-digit',minute:'2-digit'});
     
     return true;
   } catch(e) {
@@ -938,25 +935,25 @@ function renderOverview() {
       <div class="kpi-icon">✅</div>
       <div class="kpi-value">${fmtFull(completed)}</div>
       <div class="kpi-label">مكتمل</div>
-      <div class="kpi-sub">${toArabicNums(pct(completed,total))}% من الإجمالي</div>
+      <div class="kpi-sub">${pct(completed,total)}% من الإجمالي</div>
     </div>
     <div class="kpi-card" style="--kpi-color:var(--partial)">
       <div class="kpi-icon">🔄</div>
       <div class="kpi-value">${fmtFull(partial)}</div>
       <div class="kpi-label">مكتمل مرحلياً</div>
-      <div class="kpi-sub">${toArabicNums(pct(partial,total))}% من الإجمالي</div>
+      <div class="kpi-sub">${pct(partial,total)}% من الإجمالي</div>
     </div>
     <div class="kpi-card" style="--kpi-color:var(--danger)">
       <div class="kpi-icon">⚠️</div>
       <div class="kpi-value">${fmtFull(stalled)}</div>
       <div class="kpi-label">متعثر</div>
-      <div class="kpi-sub">${toArabicNums(pct(stalled,total))}% من الإجمالي</div>
+      <div class="kpi-sub">${pct(stalled,total)}% من الإجمالي</div>
     </div>
     <div class="kpi-card" style="--kpi-color:var(--info)">
       <div class="kpi-icon">❌</div>
       <div class="kpi-value">${fmtFull(rejected)}</div>
       <div class="kpi-label">مرفوض</div>
-      <div class="kpi-sub">${toArabicNums(pct(rejected,total))}% من الإجمالي</div>
+      <div class="kpi-sub">${pct(rejected,total)}% من الإجمالي</div>
     </div>
   `;
   
@@ -1106,8 +1103,8 @@ function renderStatus() {
     <div class="kpi-card" style="--kpi-color:${COLORS.statusColors[s]}">
       <div class="kpi-value">${fmtFull(counts[s])}</div>
       <div class="kpi-label">${s}</div>
-      <div class="kpi-sub">${toArabicNums(pct(counts[s],total))}% | ${fmt(amounts[s])} ريال</div>
-      <div class="progress-bar"><div class="progress-fill" style="width:${toArabicNums(pct(counts[s],total))}%;background:${COLORS.statusColors[s]}"></div></div>
+      <div class="kpi-sub">${pct(counts[s],total)}% | ${fmt(amounts[s])} ريال</div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct(counts[s],total)}%;background:${COLORS.statusColors[s]}"></div></div>
     </div>
   `).join('');
   
@@ -1170,7 +1167,7 @@ function renderStatus() {
           ${statuses.map(s => `<tr>
             <td>${getStatusBadge(s)}</td>
             <td><strong>${fmtFull(counts[s])}</strong></td>
-            <td>${toArabicNums(pct(counts[s],total))}%</td>
+            <td>${pct(counts[s],total)}%</td>
             <td>${fmt(amounts[s])} ريال</td>
             <td>${counts[s] ? fmt(amounts[s]/counts[s]) : 0} ريال</td>
           </tr>`).join('')}
@@ -1204,9 +1201,9 @@ function renderGrants() {
         return `<div class="kpi-card" style="--kpi-color:var(--primary)">
           <div class="kpi-value">${fmtFull(d.total)}</div>
           <div class="kpi-label" style="font-size:11px;font-weight:700">${name}</div>
-          <div class="kpi-sub">✅ ${toArabicNums(pct(done,d.total))}% إنجاز | ⚠️ ${toArabicNums(pct(stalled,d.total))}% تعثر</div>
+          <div class="kpi-sub">✅ ${pct(done,d.total)}% إنجاز | ⚠️ ${pct(stalled,d.total)}% تعثر</div>
           <div class="kpi-sub">${fmt(d.amount)} ريال</div>
-          <div class="progress-bar"><div class="progress-fill" style="width:${toArabicNums(pct(done,d.total))}%;background:var(--success)"></div></div>
+          <div class="progress-bar"><div class="progress-fill" style="width:${pct(done,d.total)}%;background:var(--success)"></div></div>
         </div>`;
       }).join('')}
     </div>
@@ -1240,7 +1237,7 @@ function renderGrants() {
                     <div class="progress-bar" style="flex:1;height:6px">
                       <div class="progress-fill" style="width:${completion}%;background:${completion>=70?'var(--success)':completion>=50?'var(--warning)':'var(--danger)'}"></div>
                     </div>
-                    <span style="font-weight:700;font-size:12px">${toArabicNums(completion)}%</span>
+                    <span style="font-weight:700;font-size:12px">${completion}%</span>
                   </div>
                 </td>
                 <td>${fmt(d.amount)} ريال</td>
@@ -1264,19 +1261,19 @@ function renderStalled() {
       <div class="insight-icon">⚠️</div>
       <div class="insight-title">إجمالي المتعثرة</div>
       <div class="insight-value">${fmtFull(stalledAll.length)}</div>
-      <div class="insight-desc">${toArabicNums(pct(stalledAll.length, main.length))}% من إجمالي الطلبات</div>
+      <div class="insight-desc">${pct(stalledAll.length, main.length)}% من إجمالي الطلبات</div>
     </div>
     <div class="insight-card accent">
       <div class="insight-icon">📄</div>
       <div class="insight-title">متعثر لعدم رفع التقرير</div>
       <div class="insight-value">${fmtFull(stalledNoReport.length)}</div>
-      <div class="insight-desc">${toArabicNums(pct(stalledNoReport.length, stalledAll.length))}% من المتعثرة — مشكلة متابعة وليست تنفيذية</div>
+      <div class="insight-desc">${pct(stalledNoReport.length, stalledAll.length)}% من المتعثرة — مشكلة متابعة وليست تنفيذية</div>
     </div>
     <div class="insight-card dark">
       <div class="insight-icon">🚫</div>
       <div class="insight-title">متعثر فعلي</div>
       <div class="insight-value">${fmtFull(stalledReal.length)}</div>
-      <div class="insight-desc">${toArabicNums(pct(stalledReal.length, stalledAll.length))}% من المتعثرة — يحتاج تدخلاً مباشراً</div>
+      <div class="insight-desc">${pct(stalledReal.length, stalledAll.length)}% من المتعثرة — يحتاج تدخلاً مباشراً</div>
     </div>
   `;
   
@@ -1362,7 +1359,7 @@ function renderStalled() {
       return `<tr>
         <td><strong>${reg}</strong></td>
         <td>${fmtFull(d.total)}</td>
-        <td>${toArabicNums(stallRate)}%</td>
+        <td>${stallRate}%</td>
         <td>${topGrant ? topGrant[0] + ' (' + topGrant[1] + ')' : '-'}</td>
         <td>${topSup ? topSup[0] + ' (' + topSup[1] + ')' : '-'}</td>
       </tr>`;
@@ -1427,7 +1424,7 @@ function renderMap() {
             <div class="progress-bar" style="flex:1;height:6px">
               <div class="progress-fill" style="width:${completion}%;background:${completion>=70?'var(--success)':completion>=50?'var(--warning)':'var(--danger)'}"></div>
             </div>
-            <span style="font-weight:700;font-size:12px">${toArabicNums(completion)}%</span>
+            <span style="font-weight:700;font-size:12px">${completion}%</span>
           </div>
         </td>
         <td>${fmt(d.amount)} ريال</td>
@@ -1490,7 +1487,7 @@ function buildSVGMap(regionData) {
         onmouseleave="hideMapTooltip()"
       />
       <text x="${r.cx}" y="${r.cy}" text-anchor="middle" font-size="9" fill="white" font-weight="bold" pointer-events="none">${r.name}</text>
-      <text x="${r.cx}" y="${r.cy + 12}" text-anchor="middle" font-size="8" fill="white" pointer-events="none">${toArabicNums(completion)}%</text>
+      <text x="${r.cx}" y="${r.cy + 12}" text-anchor="middle" font-size="8" fill="white" pointer-events="none">${completion}%</text>
     `;
   }).join('');
   
@@ -1512,9 +1509,9 @@ function showMapTooltip(e, region, completion) {
   tooltip.innerHTML = `
     <strong style="font-size:13px">${region}</strong><br>
     الإجمالي: ${fmtFull(data.total)}<br>
-    مكتمل: ${fmtFull(data.done)} (${toArabicNums(pct(data.done,data.total))}%)<br>
-    متعثر: ${fmtFull(data.stalled)} (${toArabicNums(pct(data.stalled,data.total))}%)<br>
-    نسبة الإنجاز: <strong>${toArabicNums(completion)}%</strong>
+    مكتمل: ${fmtFull(data.done)} (${pct(data.done,data.total)}%)<br>
+    متعثر: ${fmtFull(data.stalled)} (${pct(data.stalled,data.total)}%)<br>
+    نسبة الإنجاز: <strong>${completion}%</strong>
   `;
 }
 
@@ -1541,13 +1538,13 @@ function selectRegion(regionName) {
   document.getElementById('regionDetail').innerHTML = `
     <h3>📍 ${regionName}</h3>
     <div class="region-stat"><span class="region-stat-label">إجمالي الطلبات</span><span class="region-stat-value">${fmtFull(data.total)}</span></div>
-    <div class="region-stat"><span class="region-stat-label">مكتمل</span><span class="region-stat-value" style="color:var(--success)">${fmtFull(data.done)} (${toArabicNums(pct(data.done,data.total))}%)</span></div>
-    <div class="region-stat"><span class="region-stat-label">مكتمل مرحلياً</span><span class="region-stat-value" style="color:var(--partial)">${fmtFull(data.partial)} (${toArabicNums(pct(data.partial,data.total))}%)</span></div>
-    <div class="region-stat"><span class="region-stat-label">متعثر</span><span class="region-stat-value" style="color:var(--danger)">${fmtFull(data.stalled)} (${toArabicNums(stallRate)}%)</span></div>
+    <div class="region-stat"><span class="region-stat-label">مكتمل</span><span class="region-stat-value" style="color:var(--success)">${fmtFull(data.done)} (${pct(data.done,data.total)}%)</span></div>
+    <div class="region-stat"><span class="region-stat-label">مكتمل مرحلياً</span><span class="region-stat-value" style="color:var(--partial)">${fmtFull(data.partial)} (${pct(data.partial,data.total)}%)</span></div>
+    <div class="region-stat"><span class="region-stat-label">متعثر</span><span class="region-stat-value" style="color:var(--danger)">${fmtFull(data.stalled)} (${stallRate}%)</span></div>
     <div class="region-stat"><span class="region-stat-label">مرفوض</span><span class="region-stat-value" style="color:var(--info)">${fmtFull(data.rejected)}</span></div>
     <div class="region-stat"><span class="region-stat-label">إجمالي المبلغ</span><span class="region-stat-value">${fmt(data.amount)} ريال</span></div>
     <div class="region-stat"><span class="region-stat-label">نسبة الإنجاز</span>
-      <span class="region-stat-value" style="color:${completion>=70?'var(--success)':completion>=50?'var(--warning)':'var(--danger)'}">${toArabicNums(completion)}%</span>
+      <span class="region-stat-value" style="color:${completion>=70?'var(--success)':completion>=50?'var(--warning)':'var(--danger)'}">${completion}%</span>
     </div>
     <div style="margin-top:12px;padding-top:12px;border-top:2px solid var(--border)">
       <div style="font-size:12px;font-weight:700;color:var(--primary-dark);margin-bottom:8px">🔍 تحليل عميق</div>
@@ -1598,7 +1595,7 @@ function renderItemsCharts(items) {
         <thead><tr><th>#</th><th>البند</th><th>التكرار</th></tr></thead>
         <tbody>
           ${items.slice(0,50).map((r, i) => `<tr>
-            <td>${toArabicNums(i+1)}</td>
+            <td>${i+1}</td>
             <td>${r['البند'] || '-'}</td>
             <td><strong>${fmtFull(parseInt(r['التكرار'] || r['العدد'] || 0))}</strong></td>
           </tr>`).join('')}
@@ -1658,7 +1655,7 @@ function renderSupervisors() {
         <div class="supervisor-icon">${icon}</div>
         <div class="supervisor-name">${name}</div>
         <div class="supervisor-count">${fmtFull(d.total)}</div>
-        <div class="supervisor-sub">طلب | ${toArabicNums(completion)}% إنجاز</div>
+        <div class="supervisor-sub">طلب | ${completion}% إنجاز</div>
         <div class="supervisor-rate">
           <div class="supervisor-rate-fill" style="width:${completion}%"></div>
         </div>
@@ -1679,10 +1676,10 @@ function renderSupervisors() {
           <div class="progress-bar" style="flex:1;height:6px">
             <div class="progress-fill" style="width:${completion}%;background:${completion>=70?'var(--success)':completion>=50?'var(--warning)':'var(--danger)'}"></div>
           </div>
-          <span style="font-weight:700;font-size:12px">${toArabicNums(completion)}%</span>
+          <span style="font-weight:700;font-size:12px">${completion}%</span>
         </div>
       </td>
-      <td>${toArabicNums(stallRate)}%</td>
+      <td>${stallRate}%</td>
     </tr>`;
   }).join('');
   
@@ -1729,11 +1726,11 @@ function renderVision() {
         <div class="vision-icon">${info.icon}</div>
         <div class="vision-title">${ax}</div>
         <div class="vision-count">${fmtFull(d.total)}</div>
-        <div style="font-size:12px;color:var(--text-light)">${toArabicNums(pct(d.total, total))}% من الإجمالي</div>
+        <div style="font-size:12px;color:var(--text-light)">${pct(d.total, total)}% من الإجمالي</div>
         <div class="vision-bar">
           <div class="vision-bar-fill" style="width:${completion}%;background:${info.color}"></div>
         </div>
-        <div style="font-size:13px;font-weight:700;color:${info.color}">${toArabicNums(completion)}% إنجاز</div>
+        <div style="font-size:13px;font-weight:700;color:${info.color}">${completion}% إنجاز</div>
         <div class="vision-desc" style="margin-top:8px">${info.desc}</div>
         <div style="margin-top:8px;font-size:12px;color:var(--text-light)">${fmt(d.amount)} ريال</div>
       </div>
